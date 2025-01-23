@@ -36,7 +36,9 @@
 @theme {
 	--color-green-100: #DBE3E8;
 	--color-black-100: #384349;
+	--color-blue-50:  #F3F9FC;
 	--color-blue-100: #0065A4;
+	--color-blue-200: #047AC2;
 }
 body {
 	background: #fff;

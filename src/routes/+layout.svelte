@@ -6,6 +6,8 @@
   
 <div>
     <Header />
-        <slot />
+        <main class="h-screen px-12">
+            <slot />
+        </main>
     <Footer />
 </div>
