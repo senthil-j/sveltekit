@@ -70,7 +70,7 @@ export async function load({ params, loadEvent }) {
 				})
 				.reduce((prev, curr) => Object.assign(prev, curr), {});
 
-		console.log(componentDataMap);
+		//console.log(componentDataMap);
 		return componentDataMap;
 	}
 

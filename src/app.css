@@ -35,7 +35,12 @@
 }
 @theme {
 	--color-green-100: #DBE3E8;
+	--color-green-200: #E1EDF4;
+	--color-green-300: #C0D0DA;
+	--color-green-400: #81939E;
 	--color-black-100: #384349;
+	--color-black-200: #051F2F;
+	--color-black-300: #53616A;
 	--color-blue-50:  #F3F9FC;
 	--color-blue-100: #0065A4;
 	--color-blue-200: #047AC2;
@@ -47,3 +52,8 @@ body {
     margin: 0;
     padding: 0;
 }
+/* @layer components {
+    .footer-links {
+        @apply mr-4 h-6 w-6 group-hover:text-gray-300 group-focus:text-gray-300 transition ease-in-out duration-150;
+    }
+} */
