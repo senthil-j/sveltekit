@@ -1,12 +1,13 @@
 <script context="module">
   import CMSExternalLinksComponent from '../CMSExternalLinksComponent.svelte';
+  import ExtraAmplienceBannerComponent from '../ExtraAmplienceBannerComponent.svelte';
+  import NoComponentFound from '../NoComponentFound.svelte';
   /*import {
   	default as amplienceBanners,
   	default as ExtraCategoryBlogsComponent,
   } from '../amplienceBanners/ExtraBrandTileCarousel.svelte';
   import CMSParagraphComponent from '../CMSParagraphComponent.svelte';
   import ExtraAccessoriesComponent from '../ExtraAccessoriesComponent.svelte';
-  import ExtraAmplienceBannerComponent from '../ExtraAmplienceBannerComponent.svelte';
   import ExtraBrandExploreRangeComponent from '../ExtraBrandExploreRangeComponent.svelte';
   import ExtraBrandMiniSearchComponent from '../ExtraBrandMiniSearchComponent.svelte';
   import ExtraBrandProductBannerComponent from '../ExtraBrandProductBannerComponent.svelte';
@@ -31,10 +32,9 @@
   import ExtraThemedCategoryComponent from '../ExtraThemedCategoryComponent.svelte';
   import ExtraTopBrandsComponent from '../ExtraTopBrandsComponent.svelte';
   import ExtraUpcomingOrdersWidgetComponent from '../ExtraUpcomingOrdersWidgetComponent.svelte';
-  import NoComponentFound from '../NoComponentFound.svelte';
   import ProductCarouselComponent from '../ProductCarouselComponent.svelte';*/
 
   export {
-  	CMSExternalLinksComponent
+  	CMSExternalLinksComponent, ExtraAmplienceBannerComponent, NoComponentFound
   };
 </script>

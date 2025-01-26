@@ -1,37 +1,20 @@
-<script lang="ts">
+<script>
     import { onMount } from "svelte";
     import {
-        getJoodMembershipBasedPropertyValue,
-        isMobile,
-        isValueSponsoredOrExtraSponsored,
-    } from "../../../../common/util";
-    import {
-        brandGtmBannerClickEvent,
-        gtmBannerViewEvent,
-    } from "../../../brand/services/brand-data-services";
-    import SponsoredTag from "../../components/SponsoredTag.svelte";
-    import viewport from "../../components/useViewportAction";
-    import {
-        getDataFromAmplienceAsync,
-        parseImageBannerData,
-    } from "../../services/amplience";
+    	getDataFromAmplienceAsync,
+    	parseImageBannerData,
+    } from "../../../../../lib/amplience.js";
 
-    import PictureTag from "../PictureTag.svelte";
     import ImageTag from "../ImageTag.svelte";
 
-    export let metaData;
-    export let isDynamicRender;
-    export let initialHeightForCLS = isMobile() ? "0" : "300px";
-
+    export let metaData=null;
+    export let initialHeightForCLS = "300px";
     const getBannerDetails = () => {
-        const amplienceId = getJoodMembershipBasedPropertyValue(
-            metaData,
-            "amplienceId",
-            "blueAmplienceId",
-            "goldAmplienceId",
-        );
+        console.log(metaData, 'metaDatametaDatametaData');
+        const amplienceId = metaData["amplienceId"];
+        console.log(amplienceId, 'amplienceId');
         return getDataFromAmplienceAsync(amplienceId)
-            .then((res) => parseImageBannerData(res as any))
+            .then((res) => {console.log(res, 'resssssssssss');return parseImageBannerData(res)})
             .then((imageBannerData) => {
                 image = imageBannerData.image;
                 mobileImage = imageBannerData.mobileImage;
@@ -40,69 +23,36 @@
                 bannerId = imageBannerData.bannerId;
             })
             .then(() => {
-                loaded = true;
-                if (isSponsored) {
-                    return { className: "divider-sponsored" };
-                }
-                return loaded;
+                return true;
             })
             .catch(() => (loaded = false));
     };
 
     onMount(async () => {
-        if (isDynamicRender == "false") {
+        //if (isDynamicRender == "false") {
             getBannerDetails();
-        }
+       // }
     });
 
     export function onLoad() {
         getBannerDetails();
     }
 
-    let amplienceId: string;
-    let loaded: boolean = false;
-    let image: string;
-    let mobileImage: string;
-    let link: string;
-    let bannerName: string;
-    let bannerId: string;
+    let loaded = false;
+    let image;
+    let mobileImage;
+    let link;
+    let bannerName;
+    let bannerId;
 
-    $: isSponsored =
-        metaData && isValueSponsoredOrExtraSponsored(metaData?.sponsoredType);
-    $: brandName = metaData?.brandCode;
     function onImageLoad() {
         loaded = true;
-        // window['ACC'].mixpanel.trackBannerView(
-        //     amplienceId,
-        //     metaData.name,
-        //     metaData.brandCode || '',
-        //     isSponsored
-        // );
     }
+    $: console.log(image, 'sd image' );
 </script>
 
 <section class="image-banner-container" style:min-height={initialHeightForCLS}>
-    <a
-        href={link}
-        on:click={() =>
-            brandGtmBannerClickEvent(
-                bannerId,
-                bannerName,
-                brandName,
-                isSponsored,
-            )}
-        on:click
-        use:viewport
-        on:enterViewport={() =>
-            gtmBannerViewEvent(bannerId, bannerName, brandName, isSponsored)}
-    >
-        <!-- <PictureTag
-            on:load={onImageLoad}
-            {image}
-            {mobileImage}
-            width="100%"
-        /> -->
-
+    <a href={link}>
         <ImageTag
             imageUrls={[mobileImage, image]}
             widths={[430, 1440]}
@@ -110,9 +60,7 @@
             alt="1x1 banner"
         />
     </a>
-    {#if isSponsored}
-        <SponsoredTag variant="banner" />
-    {/if}
+    
 </section>
 {#if !loaded}
     <div class="skeleton-item"></div>

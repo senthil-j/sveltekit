@@ -1,7 +1,7 @@
 <script>
   import { fade } from 'svelte/transition';
+  import { getCMSComponentsFromHybrisAsync, getUrlWithQueryParams } from '../.././../../lib/ajax-services';
   import ExtraSwiper from '../components/ExtraSwiper.svelte';
-  import { getCMSComponentsFromHybrisAsync } from '../services/hybris';
   import CmsLinkComponent from './CMSLinkComponent.svelte';
 
   export let metaData;
@@ -13,11 +13,14 @@
   }
   async function loadComponent() {
     const cmsLinks = metaData?.cmsLinks;
-    console.log(cmsLinks, 'cmsLinks');
     if (!cmsLinks) {
       return false;
     }
-    return getCMSComponentsFromHybrisAsync(cmsLinks.split(' '))
+    const urlParams = getCMSComponentsFromHybrisAsync(cmsLinks.split(' '));
+    const apiUrl = await getUrlWithQueryParams(urlParams.url, urlParams.params);
+    
+    return fetch(apiUrl)
+    .then((linkResponse) => linkResponse.json())
       .then((res) => res.component)
       .then(
         compArray =>

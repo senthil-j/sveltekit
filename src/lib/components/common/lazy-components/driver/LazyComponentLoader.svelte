@@ -1,20 +1,17 @@
-<script lang="ts">
+<script>
     import { onMount } from "svelte";
     import CMSExternalLinksComponent from "../CMSExternalLinksComponent.svelte";
     import ExtraAmplienceBannerComponent from "../ExtraAmplienceBannerComponent.svelte";
-    import ExtraClearanceSaleComponent from "../ExtraClearanceSaleComponent.svelte";
-    import ExtraShopByCategoryListComponent from "../ExtraShopByCategoryListComponent.svelte";
-    import ExtraUpcomingOrdersWidgetComponent from "../ExtraUpcomingOrdersWidgetComponent.svelte";
     import { cardClassesMap, slotGroups } from "./common-mapper";
 
-    export let slotName: string;
-    export let componentUids: string[];
-    export let componentsData: any[];
+    export let slotName;
+    export let componentUids;
+    export let componentsData;
 
     let element;
     let cardHidden = false;
     let cardDynamicStyles = undefined;
-    let childClassesAndStyles: { classnames: string; styles: string }[] = [];
+    let childClassesAndStyles= [];
 
     $: additionalClasses = getAdditionalClasses(
         slotName,
@@ -65,8 +62,7 @@
     }
 
     function onIntersectionObservation(
-        entries: IntersectionObserverEntry[],
-        observer: IntersectionObserver,
+        entries,observer
     ) {
         entries.forEach((e) => {
             if (e.isIntersecting) {
@@ -78,8 +74,8 @@
         });
     }
     function onViewportIntersectionObserve(
-        entries: IntersectionObserverEntry[],
-        observer: IntersectionObserver,
+        entries,
+        observer
     ) {
         entries.forEach((e) => {
             if (e.isIntersecting) {
@@ -92,7 +88,7 @@
         });
     }
 
-    async function getComponentAsync(uid: string) {
+    async function getComponentAsync(uid) {
         const compData = componentsData.find((c) => c?.uid === uid);
         let componentPromise, metaData;
 
@@ -110,7 +106,7 @@
                         default: CMSExternalLinksComponent,
                     });
                     break;
-                case "ExtraShopByCategoryListComponent":
+                /*case "ExtraShopByCategoryListComponent":
                     componentPromise = Promise.resolve({
                         default: ExtraShopByCategoryListComponent,
                     });
@@ -124,7 +120,7 @@
                     componentPromise = Promise.resolve({
                         default: ExtraUpcomingOrdersWidgetComponent,
                     });
-                    break;
+                    break;*/
 
                 default:
                     componentPromise = import("./LazyComponents.svelte").then(
@@ -148,7 +144,7 @@
     }
 
     function callChildrenOnLoads() {
-        const childLoadPromises: Promise<boolean>[] = [];
+        const childLoadPromises= [];
         childrenOnLoadFns.forEach((onLoadFn) => {
             if (typeof onLoadFn === "function") {
                 const result = onLoadFn();
@@ -173,7 +169,7 @@
                 .then((childLoadResults) => {
                     // childLoadResults.length === childLength
                     childClassesAndStyles = childLoadResults.map(
-                        (clr: any, index) => {
+                        (clr, index) => {
                             let classesAndStyles = {
                                 classnames: "",
                                 styles: "",

@@ -1,8 +1,8 @@
-import { getAppConfig } from "../../../../common/config/app-config";
+import { getAppConfig } from "../../../../../lib/app-config";
 
 type CountryCode = 'SA' | 'OM' | 'BH';
 
-const { countryCode }: { countryCode: CountryCode } = getAppConfig();
+const { countryCode } = getAppConfig();
 
 // key can be slotName or componentUid
 export const cardClassesMap = {
