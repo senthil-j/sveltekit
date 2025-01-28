@@ -1,5 +1,95 @@
 import { httpGetJSON, httpPostJSON } from '../lib/ajax-services';
 import { APP_CONSTANTS, getAppConfig } from '../lib/app-config';
+
+export function parseCarouselData(amplienceResponse) {
+	const targetResponseObject =
+		'slotContent' in amplienceResponse.body
+			? amplienceResponse.body.slotContent
+			: amplienceResponse.body;
+	const { loop, navigationDots, slides } = targetResponseObject;
+	const data = {
+		loop,
+		navigationDots,
+		slides: slides.map((s) =>
+			Object.assign(
+				{},
+				{
+					link: s.links && s.links.length > 0 ? s.links[0].url : null,
+					image: getImageUrl(s.backgroundImage, false),
+					mobileImage: getImageUrl(s.backgroundImage, true),
+					bannerName: s?.backgroundImage[0]._meta?.name,
+					bannerId: s?.backgroundImage[0]._meta?.deliveryId
+				}
+			)
+		)
+	};
+	return data;
+}
+
+export function parseCarouselDataForBrandHero(amplienceResponse) {
+	const { loop, navigationDots, slides } = amplienceResponse.body;
+	const data = {
+		loop,
+		navigationDots,
+		slides: slides.map((s) =>
+			Object.assign(
+				{},
+				{
+					link: (s?.links?.length > 0 && s?.links[0]?.url) || null,
+					image: getImageUrl(s.backgroundImage, false),
+					mobileImage: getImageUrl(s.backgroundImage, true),
+					bannerName: s?.backgroundImage[0]._meta?.name,
+					bannerId: s?.backgroundImage[0]._meta?.deliveryId
+				}
+			)
+		)
+	};
+	return data;
+}
+
+export function parseMultiBrandImageBannersData(amplienceResponse) {
+	const { bannerPosition, headingText, slides } = amplienceResponse.body;
+	const data = {
+		bannerPosition,
+		headingText,
+		slides: slides.map((s) =>
+			Object.assign(
+				{},
+				{
+					bodyText: s?.bodyText,
+					image: getImageUrl(s?.backgroundImage, false),
+					mobileImage: getImageUrl(s?.backgroundImage, true),
+					headingText: s?.headingText,
+					subHeadingText: s?.subHeadingText,
+					price: s?.price,
+					link: s?.links[0]?.url,
+					backgroundColor: s?.backgroundColor,
+					bannerName: s?.backgroundImage[0]?._meta?.name,
+					bannerId: s?.backgroundImage[0]?._meta?.deliveryId
+				}
+			)
+		)
+	};
+	return data;
+}
+
+export function parseSponsorBanner1x2Data(amplienceResponse) {
+	const { leftBanner, rightBanner } = amplienceResponse.body;
+
+	return [leftBanner, rightBanner].map((b) =>
+		Object.assign(
+			{},
+			{
+				image: getImageUrl(b[0].backgroundImage, false),
+				mobileImage: getImageUrl(b[0].backgroundImage, true),
+				link: b[0].links && b[0].links.length > 0 ? b[0].links[0].url : null,
+				bannerName: b[0].backgroundImage[0]?._meta?.name,
+				bannerId: b[0].backgroundImage[0]?._meta?.deliveryId
+			}
+		)
+	);
+}
+
 export function getDataFromAmplienceAsync(id) {
 	console.log(id, 'seiddddddddd');
 	return (
@@ -116,4 +206,162 @@ function composeAmplienceUrl(imageLinkObject) {
 	ampUrl.pathname = pathname;
 
 	return ampUrl.href;
+}
+
+export function separateMobileDesktopParamsFromString(paramString) {
+	const ws = paramString.split(';');
+	const mobile = ws[0];
+	const desktop = ws.length > 1 ? ws[1] : ws[0];
+
+	return { mobile, desktop };
+}
+
+export function getAllImageSrcsets(
+	image,
+	mobileImage,
+	getAllResolutions,
+	templateName,
+	width,
+	height
+) {
+	if (!mobileImage) {
+		mobileImage = image;
+	}
+
+	if (templateName.length > 0) {
+		return getImageSrcsetUsingTemplateName(image, mobileImage, templateName);
+	}
+
+	let pictureConfig = [
+		{ minWidth: 1280, extension: 'auto', densities: null },
+		{
+			minWidth: 1024,
+			extension: 'auto',
+			densities: [
+				['1x', 1280],
+				['2x', 2560]
+			]
+		},
+		{
+			minWidth: 768,
+			extension: 'auto',
+			densities: [
+				['1x', 1024],
+				['2x', 2048]
+			]
+		},
+		{
+			maxWidth: 768,
+			extension: 'auto',
+			densities: [
+				['1x', 768],
+				['2x', 1536]
+			]
+		}
+	];
+
+	if (getAllResolutions === false) {
+		pictureConfig = [];
+		if (width !== undefined) {
+			// width is given
+			const { mobile: mobileWidth, desktop: desktopWidth } =
+				separateMobileDesktopParamsFromString(width);
+
+			if (mobileWidth.length > 0) {
+				pictureConfig = [
+					...pictureConfig,
+					{
+						width: true,
+						widthValue: mobileWidth,
+						maxWidth: 768,
+						extension: 'auto',
+						densities: [
+							['1x', parseInt(mobileWidth)],
+							['2x', 2 * parseInt(mobileWidth)]
+						]
+					}
+				];
+			}
+			if (desktopWidth.length > 0) {
+				pictureConfig = [
+					...pictureConfig,
+					{
+						width: true,
+						widthValue: desktopWidth,
+						minWidth: 768,
+						extension: 'auto',
+						densities: [
+							['1x', parseInt(desktopWidth)],
+							['2x', 2 * parseInt(desktopWidth)]
+						]
+					}
+				];
+			}
+		}
+		if (height !== undefined) {
+			// height is given
+			const { mobile: mobileHeight, desktop: desktopHeight } =
+				separateMobileDesktopParamsFromString(height);
+
+			if (mobileHeight.length > 0) {
+				pictureConfig = [
+					...pictureConfig,
+					{
+						height: true,
+						heightValue: mobileHeight,
+						maxWidth: 768,
+						extension: 'auto',
+						densities: [
+							['1x', parseInt(mobileHeight)],
+							['2x', 2 * parseInt(mobileHeight)]
+						]
+					}
+				];
+			}
+			if (desktopHeight.length > 0) {
+				pictureConfig = [
+					...pictureConfig,
+					{
+						height: true,
+						heightValue: desktopHeight,
+						minWidth: 768,
+						extension: 'auto',
+						densities: [
+							['1x', parseInt(desktopHeight)],
+							['2x', 2 * parseInt(desktopHeight)]
+						]
+					}
+				];
+			}
+		}
+	}
+
+	return pictureConfig.map((pc) => {
+		const output = {};
+		const ext = pc.extension || '';
+		let url;
+		if ('minWidth' in pc || 'maxWidth' in pc) {
+			const width = pc.minWidth || pc.maxWidth || 0;
+			const media = 'minWidth' in pc ? 'min-width' : 'max-width';
+			const isMaxWidth = 'maxWidth' in pc;
+			url = isMaxWidth ? mobileImage : image;
+			output.media = `(${media}: ${width}px)`;
+		} else {
+			url = image;
+		}
+		if (pc.extension !== null && pc.extension !== 'auto') {
+			output.type = `image/${pc.extension}`;
+		}
+		if (pc.densities && pc.densities.length > 0) {
+			output.srcset = pc.densities
+				.map((d) => `${url}?fmt=${ext}&${'height' in pc ? 'h' : 'w'}=${d[1]} ${d[0]}`)
+				.join(', ');
+		} else {
+			output.srcset = `${url}?fmt=auto`;
+		}
+		if ('widthValue' in pc) output.widthValue = parseInt(pc.widthValue);
+		if ('heightValue' in pc) output.heightValue = parseInt(pc.heightValue);
+
+		return output;
+	});
 }

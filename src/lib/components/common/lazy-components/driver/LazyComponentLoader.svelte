@@ -2,6 +2,8 @@
     import { onMount } from "svelte";
     import CMSExternalLinksComponent from "../CMSExternalLinksComponent.svelte";
     import ExtraAmplienceBannerComponent from "../ExtraAmplienceBannerComponent.svelte";
+    import ExtraClearanceSaleComponent from "../ExtraClearanceSaleComponent.svelte";
+    import ExtraShopByCategoryListComponent from "../ExtraShopByCategoryListComponent.svelte";
     import { cardClassesMap, slotGroups } from "./common-mapper";
 
     export let slotName;
@@ -106,7 +108,7 @@
                         default: CMSExternalLinksComponent,
                     });
                     break;
-                /*case "ExtraShopByCategoryListComponent":
+                case "ExtraShopByCategoryListComponent":
                     componentPromise = Promise.resolve({
                         default: ExtraShopByCategoryListComponent,
                     });
@@ -116,7 +118,7 @@
                         default: ExtraClearanceSaleComponent,
                     });
                     break;
-                case "ExtraUpcomingOrdersWidgetComponent":
+                /*case "ExtraUpcomingOrdersWidgetComponent":
                     componentPromise = Promise.resolve({
                         default: ExtraUpcomingOrdersWidgetComponent,
                     });

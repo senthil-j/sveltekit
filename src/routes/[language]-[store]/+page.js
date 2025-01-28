@@ -1,9 +1,11 @@
 import { error } from '@sveltejs/kit';
+import { getCMSComponentsFromHybrisAsync, getUrlWithQueryParams } from '../../lib/ajax-services.js';
+import { getAppConfig } from '../../lib/app-config.js';
 import { HOMEPAGE_CONTENT_SLOT_ORDER, slotGroups } from '../../lib/common-mapper.js';
-import { contentSlotInfo } from '../../lib/homepage-contentslot-info.js';
 import { languageStoreDetails } from '../../stores/languageStore';
+const { contentSlotInfo } = getAppConfig();
 
-export async function load({ params, loadEvent }) {
+export async function load({ params, fetch }) {
 	let availableLanguages = '';
 	let availableStore = '';
 	const unsubscribe = languageStoreDetails.subscribe((availableSettings) => {
@@ -15,8 +17,6 @@ export async function load({ params, loadEvent }) {
 	if (!availableLanguages.includes(language) || !availableStore.includes(store)) {
 		error(404, 'Not found');
 	}
-
-	//console.log(contentSlotInfo, HOMEPAGE_CONTENT_SLOT_ORDER, slotGroups);
 
 	const contentSlotToComponentUidsArray =
 		contentSlotInfo &&
@@ -37,27 +37,17 @@ export async function load({ params, loadEvent }) {
 
 	let componentUids =
 		slotNameToGroupedUidsArray &&
-		slotNameToGroupedUidsArray.map(([, componentUids]) => componentUids).flat();
-	// componentUids &&
-	// 	componentUids.length > 0 &&
-	// 	getCMSComponentsFromHybrisAsync(componentUids, true).then(
-	// 		(data) => (componentData = transformComponentData(data))
-	// 	);
+		slotNameToGroupedUidsArray
+			.map(function (item) {
+				return item[1];
+			})
+			.flat();
+	//const componentIds = componentUids?.join(',');
 
-	if (componentUids?.length) {
-		const params = {
-			ppId: 'Desktop',
-			AppSessionToken: 'Y8-be8ff8fc-7ba4-4e72-894f-d84c740de62a',
-			charset: 'utf-8',
-			city: 'SA-alkhobar',
-			fields: 'FULL',
-			lang: 'en',
-			deviceId: 'Y8-be8ff8fc-7ba4-4e72-894f-d84c740de62a'
-		};
-		const url =
-			'https://stageapi.extra.com/extracommercewebservices/v2/extra_sa/cms/components?appId=Desktop&AppSessionToken=Y8-3795e459-051d-4247-bd72-3e8406a22e0d&charset=utf-8&city=SA-alkhobar&fields=FULL&lang=en&deviceId=Y8-3795e459-051d-4247-bd72-3e8406a22e0d&componentIds=homePageTopTiles%2CextraPs5-homepage%2CclearanceSaleComponent%2Ccomp_00122000%2CdealsCategoryListComponent%2CExtraDealProducts%2CdontForgetCartItemsComponent%2CtabComponent1%2Ccmsitem_00238003%2CtrendingThisHour%2Ccmsitem_00225000%2Ccmsitem_00145000%2Ccomp_00128002%2Caccessoriesyoumightlike%2CextraTasheelBanner-homepage%2CthemedCategory%2ChomePageshoppingservices%2CextraSponsorBanner1X2-homepage%2CtopBrandsComponentHomePage%2CclassProExclusiveComponent%2CextraServicesComponent%2Chome_page.category-top-sellers-widget%2CextraAmplienceSlot14BannerComponent%2CextraAmplienceSlot15BannerComponent%2CextraAmplienceSlot16BannerComponent%2CextraAmplienceSlot17BannerComponent%2CextraAmplienceSlot18BannerComponent%2CextraAmplienceSlot19BannerComponent%2CextraAmplienceSlot20BannerComponent%2CextraAmplienceSlot21BannerComponent%2CextraAmplienceSlot22BannerComponent%2CextraAmplienceSlot23BannerComponent%2CextraAmplienceSlot24BannerComponent%2CextraAmplienceSlot25BannerComponent%2CextraAmplienceSlot26BannerComponent%2CextraAmplienceSlot27BannerComponent%2CextraAmplienceSlot28BannerComponent%2CextraAmplienceSlot29BannerComponent%2CextraAmplienceSlot30BannerComponent&pageSize=50';
-
-		const response = await fetch(url, params);
+	if (slotNameToGroupedUidsArray && componentUids?.length) {
+		const urlParams = await getCMSComponentsFromHybrisAsync(componentUids, true);
+		const apiUrl = await getUrlWithQueryParams(urlParams.url, urlParams.params);
+		const response = await fetch(apiUrl);
 		const slotData = await response.json();
 		const componentData = await transformComponentData(slotData);
 
@@ -69,16 +59,45 @@ export async function load({ params, loadEvent }) {
 					return { [c.uid]: c };
 				})
 				.reduce((prev, curr) => Object.assign(prev, curr), {});
-
-		//console.log(componentDataMap);
-		return componentDataMap;
+		return { componentDataMap, slotNameToGroupedUidsArray };
 	}
 
-	// const url =
-	// 	'https://stageapi.extra.com/extracommercewebservices/v2/extra_sa/cms/components?appId=Desktop&AppSessionToken=Y8-3795e459-051d-4247-bd72-3e8406a22e0d&charset=utf-8&city=SA-alkhobar&fields=FULL&lang=en&deviceId=Y8-3795e459-051d-4247-bd72-3e8406a22e0d&componentIds=homePageTopTiles%2CextraPs5-homepage%2CclearanceSaleComponent%2Ccomp_00122000%2CdealsCategoryListComponent%2CExtraDealProducts%2CdontForgetCartItemsComponent%2CtabComponent1%2Ccmsitem_00238003%2CtrendingThisHour%2Ccmsitem_00225000%2Ccmsitem_00145000%2Ccomp_00128002%2Caccessoriesyoumightlike%2CextraTasheelBanner-homepage%2CthemedCategory%2ChomePageshoppingservices%2CextraSponsorBanner1X2-homepage%2CtopBrandsComponentHomePage%2CclassProExclusiveComponent%2CextraServicesComponent%2Chome_page.category-top-sellers-widget%2CextraAmplienceSlot14BannerComponent%2CextraAmplienceSlot15BannerComponent%2CextraAmplienceSlot16BannerComponent%2CextraAmplienceSlot17BannerComponent%2CextraAmplienceSlot18BannerComponent%2CextraAmplienceSlot19BannerComponent%2CextraAmplienceSlot20BannerComponent%2CextraAmplienceSlot21BannerComponent%2CextraAmplienceSlot22BannerComponent%2CextraAmplienceSlot23BannerComponent%2CextraAmplienceSlot24BannerComponent%2CextraAmplienceSlot25BannerComponent%2CextraAmplienceSlot26BannerComponent%2CextraAmplienceSlot27BannerComponent%2CextraAmplienceSlot28BannerComponent%2CextraAmplienceSlot29BannerComponent%2CextraAmplienceSlot30BannerComponent&pageSize=50';
+	/*if (componentUids?.length) {
+		const componentIds = componentUids?.join(',');
+		const apiParams = {
+			fields: 'FULL',
+			lang: 'en',
+			deviceId: 'Y8-be8ff8fc-7ba4-4e72-894f-d84c740de62a',
+			componentIds,
+			pageSize: 50,
+			city: 'SA-riyadh'
+		};
 
-	// const response = await fetch(url, params);
-	// console.log(response, 'footer dataaaaaaaaaa');
+		const url = getUrlWithQueryParams(
+			'https://stageapi.extra.com/extracommercewebservices/v2/extra_sa/cms/components?appId=Desktop&AppSessionToken=Y8-be8ff8fc-7ba4-4e72-894f-d84c740de62a&charset=utf-8',
+			apiParams
+		);
+
+		const response = await fetch(url);
+		const slotData = await response.json();
+		const componentData = await transformComponentData(slotData);
+
+		const componentDataMap =
+			componentData &&
+			componentData.component &&
+			componentData.component
+				.map((c) => {
+					return { [c.uid]: c };
+				})
+				.reduce((prev, curr) => Object.assign(prev, curr), {});
+		return componentDataMap;
+	}*/
+}
+
+async function getHomePageData(url, fetch) {
+	const response = await fetch(url);
+	const slotData = await response.json();
+	const componentData = await transformComponentData(slotData);
 }
 
 function sorterBasedOnAnotherArray(refArray) {

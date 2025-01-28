@@ -1,10 +1,4 @@
 <script lang="ts">
-    import { isValueSponsoredOrExtraSponsored } from "../../../../common/util";
-    import {
-        brandGtmBannerClickEvent,
-        gtmBannerViewEvent,
-    } from "../../../brand/services/brand-data-services";
-    import viewport from "../../components/useViewportAction";
     import PictureTag from "../PictureTag.svelte";
 
     export let bannerData;
@@ -21,22 +15,6 @@
     href={bannerData?.link}
     class="multi-banner-item scale-on-hover"
     style="background-color: {color};"
-    on:click={() =>
-        brandGtmBannerClickEvent(
-            bannerData?.bannerId,
-            bannerData?.bannerName,
-            "",
-            "",
-        )}
-    on:click
-    use:viewport
-    on:enterViewport={() =>
-        gtmBannerViewEvent(
-            bannerData?.bannerId,
-            bannerData?.bannerName,
-            "",
-            "",
-        )}
 >
     <div class="text-wrapper">
         <h3>{bannerData?.headingText}</h3>

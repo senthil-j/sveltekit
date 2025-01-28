@@ -1,9 +1,9 @@
-<script lang="ts">
-    import { APP_CONSTANTS } from "../../../common/config/app-constants";
+<script>
+    import { APP_CONSTANTS } from "../../../../lib/app-config";
 
-    export let metaData: any;
+    export let metaData;
     export function onLoad() {
-        console.log("No component:", metaData);
+        //console.log("No component:", metaData);
     }
 
     const filterOutProperties = [

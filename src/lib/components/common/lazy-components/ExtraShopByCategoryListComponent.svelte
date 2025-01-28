@@ -1,17 +1,22 @@
-<script lang="ts">
-    import type { SwiperOptions } from "swiper/types";
-    import { isMobile } from "../../../common/util";
+<script>
+    import { getCMSComponentsFromHybrisAsync, getUrlWithQueryParams } from "../../../../lib/ajax-services";
+    import { isMobile } from "../../../../lib/util";
     import ExtraSwiper from "../components/ExtraSwiper.svelte";
-    import { getCMSComponentsFromHybrisAsync } from "../services/hybris";
     import ExtraShopByCategoryComponent from "./ExtraShopByCategoryComponent.svelte";
 
-    export let metaData: any;
+    export let metaData;
 
-    export function onLoad() {
+    export async function onLoad() {
         const categoryIds =
             metaData.extraShopByCategoryComponentList.split(" ");
-        getCMSComponentsFromHybrisAsync(categoryIds)
-            .then((res) => res.component)
+
+            const urlParams = getCMSComponentsFromHybrisAsync(categoryIds);
+            const apiUrl = await getUrlWithQueryParams(urlParams.url, urlParams.params);
+            console.log(categoryIds, metaData,' categoryIds, metaData', apiUrl);
+
+        await fetch(apiUrl)
+        .then((linkResponse) => linkResponse.json())
+            .then((res) => {console.log(res, ' rrrrr reds'); return res.component})
             .then((categories) => {
                 categoryList = categories;
                 loaded = true;
@@ -23,7 +28,7 @@
     $: isResponsive = isMobile();
     $: categoryTileSwiperOptions = getSwiperOptions();
 
-    function getSwiperOptions(): SwiperOptions {
+    function getSwiperOptions() {
         return {
             slidesPerView: "auto",
             spaceBetween: isResponsive ? "12" : "16",
@@ -65,6 +70,7 @@
         swiper-slide {
             display: flex;
         }
+        /*
         :global {
             .extra-swiper-container .swiper-button-next {
                 transform: none !important;
@@ -73,6 +79,7 @@
                 transform: none !important;
             }
         }
+            */
     }
     .skeleton-container {
         display: flex;

@@ -1,36 +1,24 @@
-<script lang="ts">
-    import type { SwiperOptions } from "swiper/types";
-    import { getAppConfig } from "../../../../common/config/app-config";
+<script>
     import {
-        getJoodMembershipBasedPropertyValue,
-        isMobile,
-        isValueSponsoredOrExtraSponsored,
-    } from "../../../../common/util";
-    import {
-        brandGtmBannerClickEvent,
-        gtmBannerViewEvent,
-    } from "../../../brand/services/brand-data-services";
-    import {
-        getDataFromAmplienceAsync,
-        parseCarouselDataForBrandHero,
-    } from "../../../common/services/amplience";
+    	getDataFromAmplienceAsync,
+    	parseCarouselDataForBrandHero,
+    } from "../../../../../lib/amplience";
     import ExtraCarouselContainerSlideTemplate from "../../components/ExtraCarouselContainerSlideTemplate.svelte";
     import ExtraSwiper from "../../components/ExtraSwiper.svelte";
-    import SponsoredTag from "../../components/SponsoredTag.svelte";
-
+    
     export let metaData;
 
-    let loaded: boolean = false;
+    let loaded = false;
     let carouselData;
-    let isResponsive = isMobile();
-    const { bannerAutoScrollSwitch } = getAppConfig();
+    let isResponsive = false;
+    const  bannerAutoScrollSwitch = false;
     $: isBrandCarousel =
         metaData &&
         "amplienceContentType" in metaData &&
         metaData["amplienceContentType"] === "extraCarouselVariant1";
 
     $: isHeroBanner = !isBrandCarousel;
-    $: height = isResponsive ? "auto" : "auto";
+    $: height = "auto";
 
     $: spaceBetween = "0";
     $: isSponsored =
@@ -47,7 +35,7 @@
         isHeroBanner,
         slidesPerView,
         spaceBetween,
-    ): SwiperOptions {
+    ) {
         return {
             loop: true,
             pagination: true,
@@ -64,14 +52,9 @@
     }
 
     export function onLoad() {
-        const amplienceId = getJoodMembershipBasedPropertyValue(
-            metaData,
-            "amplienceId",
-            "blueAmplienceId",
-            "goldAmplienceId",
-        );
+        const amplienceId = metaData["amplienceId"];
         return getDataFromAmplienceAsync(amplienceId)
-            .then((res: any) => parseCarouselDataForBrandHero(res))
+            .then((res) => parseCarouselDataForBrandHero(res))
             .then((parsedCarouselData) => {
                 carouselData = parsedCarouselData;
                 gtmBannerViewEvent(
@@ -84,9 +67,6 @@
             .then(() => {
                 loaded = true;
                 const returnObject = { className: "" };
-                if (isSponsored) {
-                    returnObject.className += " divider-sponsored";
-                }
                 if (isHeroBanner) {
                     returnObject.className += "super-wide-card";
                 }
@@ -95,29 +75,6 @@
             })
             .catch(() => (loaded = false));
     }
-
-    function onSlideChange() {
-        const slide =
-            this.slides[this.activeIndex].querySelector(".carousel-slide");
-        console.log(slide.dataset, "slide.dataset");
-        if (slide && slide.dataset) {
-            const { bannerId, bannerName } = slide.dataset;
-            gtmBannerViewEvent(bannerId, bannerName, brandName, isSponsored);
-        }
-    }
-
-    const onSlideClick = (swiper) => {
-        const slide = swiper.clickedSlide.querySelector(".carousel-slide");
-        if (slide && slide.dataset) {
-            const { bannerId, bannerName } = slide.dataset;
-            brandGtmBannerClickEvent(
-                bannerId,
-                bannerName,
-                brandName,
-                isSponsored,
-            );
-        }
-    };
 </script>
 
 {#if loaded}
@@ -127,9 +84,6 @@
             slideTemplate={ExtraCarouselContainerSlideTemplate}
             {swiperOptions}
         />
-        {#if isSponsored}
-            <SponsoredTag variant="banner" />
-        {/if}
     </section>
 {:else}
     <div class="skeleton-item"></div>
@@ -145,6 +99,7 @@
             (max(100%, 1440px) - 1440px) / 2 + 10px
         );
 
+        /*
         :global {
             .extra-swiper-container .swiper-button-next {
                 right: 6rem;
@@ -203,7 +158,7 @@
             .swiper-rtl .swiper-button-next {
                 left: inherit;
             }
-        }
+        }*/
     }
     .skeleton-item {
         height: 300px;

@@ -1,13 +1,17 @@
 <script lang="ts">
-    import { isMobile } from "../../../common/util";
-    import { getCMSComponentsFromHybrisAsync } from "../services/hybris";
+    import { getCMSComponentsFromHybrisAsync, getUrlWithQueryParams } from "../../../../lib/ajax-services";
+    import { isMobile } from "../../../../lib/util";
     import ImageTag from "./ImageTag.svelte";
-    import PictureTag from "./PictureTag.svelte";
-
+    
     export let metaData;
-    export function onLoad() {
+    export async function onLoad() {
         const _cmsLinks = metaData?.cmsLinks.split(" ");
-        getCMSComponentsFromHybrisAsync(_cmsLinks)
+
+        const urlParams = getCMSComponentsFromHybrisAsync(_cmsLinks);
+            const apiUrl = await getUrlWithQueryParams(urlParams.url, urlParams.params);
+
+        await fetch(apiUrl)
+        .then((res) => res.json())
             .then((res) => res.component)
             .then((cmsLinksData) => (cmsLinks = cmsLinksData))
             .then(() => (loaded = true));

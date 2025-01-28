@@ -1,21 +1,13 @@
-<script lang="ts">
-  import type { SwiperOptions } from 'swiper/types';
-  import { getAppConfig } from '../../../../common/config/app-config';
-  import {
-    getJoodMembershipBasedPropertyValue,
-    isMobile,
-    isValueSponsoredOrExtraSponsored,
-  } from '../../../../common/util';
-  import { brandGtmBannerClickEvent, gtmBannerViewEvent } from '../../../brand/services/brand-data-services';
+<script>
+  import { getDataFromAmplienceAsync, parseCarouselData } from '../../../../../lib/amplience';
+  import { getAppConfig, isValueSponsoredOrExtraSponsored } from '../../../../../lib/app-config';
   import ExtraHeroBannerSlideTemplate from '../../components/ExtraHeroBannerSlideTemplate.svelte';
   import ExtraSwiper from '../../components/ExtraSwiper.svelte';
-  import SponsoredTag from '../../components/SponsoredTag.svelte';
-  import { getDataFromAmplienceAsync, parseCarouselData } from '../../services/amplience';
   export let metaData;
 
   let carouselData;
   let loaded = false;
-  let isResponsive = isMobile();
+  let isResponsive = false;
 
   const { bannerAutoScrollSwitch } = getAppConfig();
 
@@ -27,9 +19,7 @@
 
   $: belowLargeScreen = window.innerWidth < 1440 && !isResponsive;
   $: isHeroBanner = !isBrandCarouselForHomepage;
-  // $: slidesPerView = isResponsive ? 1 : isHeroBanner ? 'auto' : 4;
   $: slidesPerView = belowLargeScreen ? 1 : isResponsive ? 1 : isHeroBanner ? 'auto' : 4;
-  // $: spaceBetween = isResponsive ? 10 : isHeroBanner ? -65 : 36;
   $: spaceBetween = belowLargeScreen ? -45 : isResponsive ? 10 : isHeroBanner ? -65 : 36;
 
   $: isSponsored = metaData && isValueSponsoredOrExtraSponsored(metaData?.sponsoredType);
@@ -38,7 +28,7 @@
 
   $: swiperOptions = getSwiperOptions(isHeroBanner, slidesPerView, spaceBetween, belowLargeScreen);
 
-  function getSwiperOptions(isHeroBanner, slidesPerView, spaceBetween, belowLargeScreen): SwiperOptions {
+  function getSwiperOptions(isHeroBanner, slidesPerView, spaceBetween, belowLargeScreen) {
     return {
       loop: true,
       pagination: isHeroBanner,
@@ -47,25 +37,15 @@
       spaceBetween,
       centeredSlides: isHeroBanner || isResponsive,
       autoplay: bannerAutoScrollSwitch,
-      on: {
-        realIndexChange: onSlideChange,
-        click: onSlideClick,
-      },
     };
   }
   async function getImageData() {
-    const amplienceId = getJoodMembershipBasedPropertyValue(
-      metaData,
-      'amplienceId',
-      'blueAmplienceId',
-      'goldAmplienceId'
-    );
+    const amplienceId = metaData["amplienceId"];
 
     return getDataFromAmplienceAsync(amplienceId)
-      .then(res => parseCarouselData(res as any))
+      .then(res => parseCarouselData(res))
       .then(parsedCarouselData => {
         carouselData = parsedCarouselData;
-        gtmBannerViewEvent(carouselData.slides[0].bannerId, carouselData.slides[0].bannerName, brandName, isSponsored);
         return carouselData;
       })
       .then(() => {
@@ -82,22 +62,6 @@
       })
       .catch(() => (loaded = false));
   }
-
-  function onSlideChange() {
-    const slide = this.slides[this.activeIndex].querySelector('.carousel-slide');
-    if (slide && slide.dataset) {
-      const { bannerId, bannerName } = slide.dataset;
-      gtmBannerViewEvent(bannerId, bannerName, brandName, isSponsored);
-    }
-  }
-
-  const onSlideClick = swiper => {
-    const slide = swiper.clickedSlide.querySelector('.carousel-slide');
-    if (slide && slide.dataset) {
-      const { bannerId, bannerName } = slide.dataset;
-      brandGtmBannerClickEvent(bannerId, bannerName, brandName, isSponsored);
-    }
-  };
 </script>
 
 {#if loaded}
@@ -108,9 +72,6 @@
       slideTemplate={ExtraHeroBannerSlideTemplate}
       {swiperOptions}
     />
-    {#if isSponsored}
-      <SponsoredTag variant="banner" />
-    {/if}
   </section>
 {:else}
   {#if isHeroBanner}
@@ -140,7 +101,9 @@
     @include responsive {
       height: unset;
     }
-
+    /*
+    //
+      //sveltekit sass
     :global {
       .extra-swiper-container .swiper-button-next {
         transform: none !important;
@@ -190,6 +153,7 @@
         left: inherit;
       }
     }
+    */
   }
 
   swiper-slide {

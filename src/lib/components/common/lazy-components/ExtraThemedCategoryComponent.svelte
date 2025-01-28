@@ -1,19 +1,22 @@
-<script lang="ts">
-  import type { SwiperOptions } from 'swiper/types';
-  import { getAppConfig } from '../../../common/config/app-config';
-  import { isMobile } from '../../../common/util';
+<script>
+  import { getCMSComponentsFromHybrisAsync, getUrlWithQueryParams } from '../../../../lib/ajax-services';
+  import { isMobile } from '../../../../lib/util';
   import ExtraSwiper from '../components/ExtraSwiper.svelte';
   import ExtraThemedCategorySlideTemplate from '../components/ExtraThemedCategorySlideTemplate.svelte';
-  import { getCMSComponentsFromHybrisAsync } from '../services/hybris';
 
   export let metaData;
-  export function onLoad() {
+  export async function onLoad() {
     let linkNames = '';
     linkNames = metaData.cmsLinkList;
 
     const cmsLinks = linkNames?.split(' ');
-    getCMSComponentsFromHybrisAsync(cmsLinks)
-      .then(res => res.component)
+
+    const urlParams = getCMSComponentsFromHybrisAsync(cmsLinks);
+    const apiUrl = await getUrlWithQueryParams(urlParams.url, urlParams.params);
+    
+    await fetch(apiUrl)
+    .then((res) => res.json())
+      .then(res => {console.log(res, 'themed res'); return res.component})
       .then(
         links =>
           (themedLinks = links.map(v => ({
@@ -26,7 +29,6 @@
       });
   }
 
-  const { encodedContextPath } = getAppConfig();
   let loaded = false;
   let themedLinks = [];
 
@@ -36,7 +38,7 @@
 
   $: swiperOptions = getSwiperOptions(slidesPerView, spaceBetween);
 
-  function getSwiperOptions(slidesPerView, spaceBetween): SwiperOptions {
+  function getSwiperOptions(slidesPerView, spaceBetween) {
     return {
       slidesPerView,
       spaceBetween,
@@ -77,6 +79,7 @@
   $theme-icon-size: 32px;
 
   .themed-category-container {
+    /*
     :global {
       .swiper-wrapper .swiper-slide {
         width: fit-content !important;
@@ -131,6 +134,7 @@
         }
       }
     }
+      */
 
     .skeleton-container {
       padding-top: 32px;

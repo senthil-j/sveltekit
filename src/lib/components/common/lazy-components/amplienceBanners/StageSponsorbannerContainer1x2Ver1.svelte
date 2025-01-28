@@ -1,34 +1,21 @@
-<script lang="ts">
+<script>
     import { fade } from "svelte/transition";
     import {
-        isMobile,
-        isValueSponsoredOrExtraSponsored,
-        getJoodMembershipBasedPropertyValue,
-    } from "../../../../common/util";
+    	getDataFromAmplienceAsync,
+    	parseSponsorBanner1x2Data,
+    } from "../../../../../lib/amplience";
     import {
-        getDataFromAmplienceAsync,
-        parseSponsorBanner1x2Data,
-    } from "../../services/amplience";
-    import PictureTag from "../PictureTag.svelte";
-    import SponsoredTag from "../../components/SponsoredTag.svelte";
-    import {
-        brandGtmBannerClickEvent,
-        gtmBannerViewEvent,
-    } from "../../../brand/services/brand-data-services";
-    import viewport from "../../components/useViewportAction";
+    	isMobile,
+    	isValueSponsoredOrExtraSponsored
+    } from "../../../../../lib/util";
     import ImageTag from "../ImageTag.svelte";
 
     export let metaData;
 
     export function onLoad() {
-        const amplienceId = getJoodMembershipBasedPropertyValue(
-            metaData,
-            "amplienceId",
-            "blueAmplienceId",
-            "goldAmplienceId",
-        );
+        const amplienceId = metaData["amplienceId"];;
         return getDataFromAmplienceAsync(amplienceId)
-            .then((res: any) => parseSponsorBanner1x2Data(res))
+            .then((res) => parseSponsorBanner1x2Data(res))
             .then((parsedBanners) => {
                 if (parsedBanners.length === 0)
                     throw new Error("Unable to parse sponsorBanner1x2");
@@ -57,22 +44,6 @@
                     class="banner-link"
                     class:sponsored-padding={isSponsored}
                     href={link}
-                    on:click={() =>
-                        brandGtmBannerClickEvent(
-                            bannerId,
-                            alt,
-                            brandName,
-                            isSponsored,
-                        )}
-                    on:click
-                    use:viewport
-                    on:enterViewport={() =>
-                        gtmBannerViewEvent(
-                            bannerId,
-                            alt,
-                            brandName,
-                            isSponsored,
-                        )}
                     in:fade
                 >
                     <!-- <PictureTag
@@ -87,9 +58,7 @@
                         {alt}
                     />
 
-                    {#if isSponsored}
-                        <SponsoredTag variant="banner-inline" />
-                    {/if}
+                    
                 </a>
             {/each}
         {:else}

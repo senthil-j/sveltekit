@@ -1,30 +1,21 @@
-<script lang="ts">
+<script>
     import {
-        getDataFromAmplienceAsync,
-        parseMultiBrandImageBannersData,
-    } from "../../../common/services/amplience";
+    	getDataFromAmplienceAsync,
+    	parseMultiBrandImageBannersData,
+    } from "../../../../../lib/amplience";
+    import { getAppConfig } from "../../../../../lib/app-config";
     import MultiBannerItem from "../../../common/lazy-components/amplienceBanners/MultiBannerItem.svelte";
-    import {
-        getJoodMembershipBasedPropertyValue,
-        isMobile,
-    } from "../../../../common/util";
-    import { getAppConfig } from "../../../../common/config/app-config";
 
     export let metaData;
     let direction = "left";
     let headingText;
-    let isResponsive = isMobile();
+    let isResponsive = false;
     const { lang } = getAppConfig();
 
     export function onLoad() {
-        const amplienceId = getJoodMembershipBasedPropertyValue(
-            metaData,
-            "amplienceId",
-            "blueAmplienceId",
-            "goldAmplienceId",
-        );
+        const amplienceId = metaData["amplienceId"];
         return getDataFromAmplienceAsync(amplienceId)
-            .then((res: any) => parseMultiBrandImageBannersData(res))
+            .then((res) => parseMultiBrandImageBannersData(res))
             .then((data) => {
                 bannersData = data.slides;
                 if (!isResponsive) {
@@ -40,9 +31,9 @@
             .catch(() => (failedToLoad = true));
     }
 
-    let bannersData: any[] = [];
-    let loaded: boolean = false;
-    let failedToLoad: boolean = false;
+    let bannersData = [];
+    let loaded = false;
+    let failedToLoad = false;
 </script>
 
 {#if !failedToLoad}
@@ -128,6 +119,7 @@
                 gap: 24px;
             }
             .brand-bigger-tile {
+                /*
                 :global(.multi-banner-item) {
                     height: 100%;
 
@@ -171,9 +163,10 @@
                 :global(.image-wrapper img) {
                     height: 100% !important;
                     text-align: right;
-                }
+                }*/
             }
             .brand-smaller-tile {
+                /*
                 :global(.text-wrapper) {
                     position: relative;
                     z-index: 1;
@@ -201,7 +194,7 @@
                 }
                 :global(.image-wrapper img) {
                     height: 100% !important;
-                }
+                }*/
             }
             .brand-bigger-tile,
             .brand-smaller-tile {
@@ -209,6 +202,7 @@
                 @include desktop-max-width {
                     display: flex;
                 }
+                /*
                 :global(h3) {
                     font-size: 16px;
                     font-weight: 400;
@@ -230,7 +224,7 @@
                         font-weight: 700;
                         line-height: 18px;
                     }
-                }
+                }*/
             }
             .brand-smaller-tile {
                 grid-auto-rows: 1fr;

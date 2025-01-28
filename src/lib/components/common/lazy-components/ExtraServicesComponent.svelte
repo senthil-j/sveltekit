@@ -1,14 +1,18 @@
-<script lang="ts">
-    import { getContextedUrl } from "../../../common/util";
+<script>
+    import { getCMSComponentsFromHybrisAsync, getUrlWithQueryParams } from "../../../../lib/ajax-services";
+    import { getContextedUrl } from "../../../../lib/util";
     import Icon from "../components/Icon.svelte";
-    import { getCMSComponentsFromHybrisAsync } from "../services/hybris";
     import ImageTag from "./ImageTag.svelte";
-    import PictureTag from "./PictureTag.svelte";
 
     export let metaData;
-    export function onLoad() {
+    export async function onLoad() {
         const cmsComponents = metaData?.cmsComponents.split(" ");
-        getCMSComponentsFromHybrisAsync(cmsComponents)
+
+        const urlParams = getCMSComponentsFromHybrisAsync(cmsComponents);
+        const apiUrl = await getUrlWithQueryParams(urlParams.url, urlParams.params);
+
+        await fetch(apiUrl)
+        .then((res) => res.json())
             .then((res) => res.component)
             .then((cmsComponentsArray) =>
                 resolveChildCMSLinks(cmsComponentsArray),
@@ -17,11 +21,15 @@
             .then(() => (loaded = true));
     }
 
-    function resolveChildCMSLinks(cmsArray: any[]) {
-        const miniPromises = cmsArray.map((c) => {
+      function resolveChildCMSLinks(cmsArray) {
+        const miniPromises = cmsArray.map(async (c) => {
             if (c.typeCode === "CMSExternalLinksComponent") {
                 const _cmsLinks = c.cmsLinks.split(" ");
-                return getCMSComponentsFromHybrisAsync(_cmsLinks)
+                const urlParams = getCMSComponentsFromHybrisAsync(_cmsLinks);
+                const apiUrl = await getUrlWithQueryParams(urlParams.url, urlParams.params);
+
+                return await fetch(apiUrl)
+                .then((res) => res.json())
                     .then((res) => res.component)
                     .then((linksArray) =>
                         Object.assign({}, c, { cmsLinks: linksArray }),
@@ -142,6 +150,7 @@
                 &.skeleton-item {
                     height: 436px;
                 }
+                /*
                 :global {
                     .c_more-slot-content-box-title {
                         font-size: 16px;
@@ -245,7 +254,7 @@
                             }
                         }
                     }
-                }
+                }*/
             }
         }
     }

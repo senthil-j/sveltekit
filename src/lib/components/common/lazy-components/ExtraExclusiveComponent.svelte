@@ -1,14 +1,14 @@
-<script lang="ts">
-    import { getGroupedCMSComponentsFromHybrisAsync } from "../services/hybris";
+<script>
+    import { getGroupedCMSComponentsFromHybrisAsync } from "../../../../lib/hybris";
     import ImageTag from "./ImageTag.svelte";
 
     export let metaData;
-    export function onLoad() {
+    export async function onLoad() {
         const extraShopByCategoryList =
             metaData?.extraShopByCategoryList.split(" ");
         const extraStaticPromotors = metaData?.staticPromotors.split(" ");
 
-        return getGroupedCMSComponentsFromHybrisAsync([
+        return await getGroupedCMSComponentsFromHybrisAsync([
             extraShopByCategoryList,
             extraStaticPromotors,
         ]).then(([shopByData, staticPromotorsData]) => {
@@ -229,7 +229,7 @@
                 flex-direction: column;
                 align-items: center;
                 padding: 8px;
-
+                /*
                 :global(img) {
                     flex-grow: 1;
                     max-height: 96px;
@@ -239,6 +239,7 @@
                         max-height: 75px;
                     }
                 }
+                */
 
                 @include desktop-min-width {
                     height: 178px;

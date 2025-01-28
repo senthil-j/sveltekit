@@ -34,9 +34,9 @@
        // }
     });
 
-    export function onLoad() {
-        getBannerDetails();
-    }
+    // export function onLoad() {
+    //     getBannerDetails();
+    // }
 
     let loaded = false;
     let image;
@@ -45,10 +45,10 @@
     let bannerName;
     let bannerId;
 
-    function onImageLoad() {
-        loaded = true;
-    }
-    $: console.log(image, 'sd image' );
+    // function onImageLoad() {
+    //     loaded = true;
+    // }
+    //$: console.log(image, 'sd image' );
 </script>
 
 <section class="image-banner-container" style:min-height={initialHeightForCLS}>

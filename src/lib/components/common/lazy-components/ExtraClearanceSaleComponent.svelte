@@ -1,18 +1,17 @@
-<script lang="ts">
-    import { intervalToDuration, isAfter } from "date-fns";
+<script>
     import { onDestroy } from "svelte";
     import { fade } from "svelte/transition";
-    import { getAppConfig } from "../../../common/config/app-config";
     import {
-        getContextedUrl,
-        getLangSpecificFieldname,
-        numberTo2Digits,
-    } from "../../../common/util";
+    	OPTION_ATTRIBUTES_TO_RETRIEVE,
+    	getProductsFromAlgoliaAsync,
+    } from "../../../../lib/algolia";
+    import { getAppConfig } from "../../../../lib/app-config";
+    import {
+    	getContextedUrl,
+    	getLangSpecificFieldname,
+    	numberTo2Digits,
+    } from "../../../../lib/util";
     import Text from "../components/Text.svelte";
-    import {
-        OPTION_ATTRIBUTES_TO_RETRIEVE,
-        getProductsFromAlgoliaAsync,
-    } from "../services/algolia";
     import PictureTag from "./PictureTag.svelte";
 
     export let metaData;
@@ -20,11 +19,10 @@
     export function onLoad() {
         const endTime = metaData.validUptoTime;
         validUptoTime = new Date(endTime);
-        isValid = isAfter(validUptoTime, Date.now());
+        isValid = false;
 
         startTimer(endTime);
         const productCodes = metaData.productCarousal?.productCodes.split(" ");
-
         if (productCodes.length > +metaData.maxProductsToDisplay) {
             productCodes.length = +metaData.maxProductsToDisplay;
         }
@@ -38,7 +36,8 @@
                 "urlAr",
                 "urlEn",
             ]),
-        ).then((res: any) => {
+        ).then((res) => {
+            console.log(res,' sersss');
             if ("hits" in res) {
                 products = res.hits;
                 loaded = true;
@@ -51,20 +50,22 @@
     const { lang } = getAppConfig();
 
     let isValid = true;
-    let timeoutId: any;
-    let validUptoTime: Date;
-    let timeLeft: any;
+    let timeoutId;
+    let validUptoTime;
+    let timeLeft;
     let products = [];
     let loaded = false;
 
     function startTimer(endTime) {
         if (!isNaN(validUptoTime.valueOf())) {
             timeoutId = setTimeout(() => {
-                if (isAfter(validUptoTime, Date.now())) {
-                    const duration = intervalToDuration({
-                        start: Date.now(),
-                        end: validUptoTime,
-                    });
+                if (false) {
+                    const duration = {
+                        days: 10,
+                        hours: 1,
+                        minutes: 20,
+                        seconds: 30
+                    }
                     timeLeft = Object.assign(
                         {},
                         {
@@ -76,7 +77,7 @@
                     );
                     startTimer(endTime);
                 } else {
-                    isValid = false;
+                    isValid = true;
                     const z = numberTo2Digits(0);
                     timeLeft = {
                         days: z,
